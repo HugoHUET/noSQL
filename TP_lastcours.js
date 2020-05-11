@@ -14,19 +14,40 @@
 
 // 1.
 db.places.insertMany(
-	[{name : "Bistrot Lucien", location : {type : "Point", coordinates : [48.871120, 2.360154]}},
-	{name : "Hopital", location : {type : "Point", coordinates : [48.837490, 2.364986]}},
-	{name : "Arc de Triomphe", location : {type : "Point", coordinates : [48.873803, 2.295047]}}])
+	[{name : "Bistrot Lucien", location : {type : "Point", coordinates : [2.360154, 48.871120]}},
+	{name : "Hopital", location : {type : "Point", coordinates : [2.364986, 48.837490]}},
+	{name : "Arc de Triomphe", location : {type : "Point", coordinates : [2.295047, 48.873803]}}])
 db.places.createIndex( { location : "2dsphere" } )
 
 // 2.
+db.places.aggregate([
+    {
+        $geoNear: {
+            near: { type: "Point", coordinates: [2.294330, 48.858898] },
+            spherical: true,
+            distanceField: "calcDistance"
+        }
+    },
+    { $limit: 1 }
+])
+db.places.find(
+    {
+        location:
+        {
+            $near:
+            {
+                $geometry: { type: "Point", coordinates: [2.294330, 48.858898] },
+            }
+        }
+    }
+).limit(1)
 db.places.findOne(
    {
      location: {
         $nearSphere: {
            $geometry: {
               type : "Point",
-              coordinates : [ 48.858898, 2.294330 ]
+              coordinates : [ 2.294330, 48.858898 ]
            }
         }
      }
@@ -41,11 +62,11 @@ db.places.find({
 				type: "Polygon", 
 				coordinates: [
 					[ 
-						[48.873803, 2.295047],
-						[48.850835, 2.286377],
-						[48.862931, 2.392769],
-						[48.895090, 2.376634],
-						[48.873803, 2.295047]
+						[2.295047, 48.873803],
+						[2.286377, 48.850835],
+						[2.392769, 48.862931],
+						[2.376634, 48.895090],
+						[2.295047, 48.873803]
 					]
 				] 
 			} 
